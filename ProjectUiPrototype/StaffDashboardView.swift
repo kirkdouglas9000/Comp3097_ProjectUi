@@ -10,6 +10,7 @@ import SwiftUI
 struct StaffDashboardView: View {
 
     @State private var goAnnouncements = false
+    @State private var goInventory = false
 
     var body: some View {
         ZStack {
@@ -59,11 +60,11 @@ struct StaffDashboardView: View {
                     // Pills
                     VStack(spacing: 14) {
                         DashboardPill(title: "My Schedule") {
-                            // future nav
+                            
                         }
 
                         DashboardPill(title: "Inventory") {
-                            // future nav
+                            goInventory = true
                         }
 
                         DashboardPill(title: "Announcements") {
@@ -80,6 +81,9 @@ struct StaffDashboardView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $goAnnouncements) {
             AnnouncementsView()
+        }
+        .navigationDestination(isPresented: $goInventory){
+            InventoryView()
         }
     }
 }
