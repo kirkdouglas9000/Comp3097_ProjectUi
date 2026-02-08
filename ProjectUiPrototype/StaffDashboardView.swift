@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct StaffDashboardView: View {
+
+    @State private var goAnnouncements = false
+    @State private var goInventory = false
+    @State private var goSchedule = false
+
     var body: some View {
         ZStack {
             Image("pointseven")
@@ -22,6 +27,7 @@ struct StaffDashboardView: View {
 
                 VStack(spacing: 16) {
 
+                    // Announcements card
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Announcements")
                             .font(.headline)
@@ -31,7 +37,9 @@ struct StaffDashboardView: View {
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.85))
 
-                        Button(action: {}) {
+                        Button(action: {
+                            goAnnouncements = true
+                        }) {
                             Text("View all")
                                 .font(.headline)
                                 .foregroundColor(.black)
@@ -44,13 +52,24 @@ struct StaffDashboardView: View {
                         .padding(.top, 6)
                     }
                     .padding(16)
-                    .background(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.85))
+                    .background(
+                        Color(red: 0.25, green: 0.16, blue: 0.12)
+                            .opacity(0.85)
+                    )
                     .cornerRadius(18)
 
                     VStack(spacing: 14) {
-                        DashboardPill(title: "My Schedule")
-                        DashboardPill(title: "Inventory")
-                        DashboardPill(title: "Announcements")
+                        DashboardPill(title: "My Schedule") {
+                            goSchedule = true
+                        }
+
+                        DashboardPill(title: "Inventory") {
+                            goInventory = true
+                        }
+
+                        DashboardPill(title: "Announcements") {
+                            goAnnouncements = true
+                        }
                     }
                 }
                 .frame(maxWidth: 360)
@@ -60,14 +79,24 @@ struct StaffDashboardView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $goAnnouncements) {
+            AnnouncementsView()
+        }
+        .navigationDestination(isPresented: $goInventory){
+            InventoryView()
+        }
+        .navigationDestination(isPresented: $goSchedule){
+            MyScheduleView()
+        }
     }
 }
 
 struct DashboardPill: View {
     let title: String
+    let action: () -> Void
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             Text(title)
                 .font(.headline)
                 .foregroundColor(.white)
