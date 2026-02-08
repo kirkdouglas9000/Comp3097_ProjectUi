@@ -11,6 +11,7 @@ struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
     @State private var goDashboard = false
+    @State private var goManagerDashboard = false
 
     var body: some View {
         ZStack {
@@ -57,7 +58,9 @@ struct LoginView: View {
                 }
 
                 
-                Button(action: {}) {
+                Button(action: {
+                    goManagerDashboard = true
+                }) {
                     Text("Sign in as Manager")
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -92,6 +95,9 @@ struct LoginView: View {
         }
         .navigationDestination(isPresented: $goDashboard){
             StaffDashboardView()
+        }
+        .navigationDestination(isPresented: $goManagerDashboard){
+            ManagerDashboardView()
         }
     }
 }
