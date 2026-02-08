@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
+    @State private var goDashboard = false
 
     var body: some View {
         ZStack {
@@ -44,7 +45,9 @@ struct LoginView: View {
                 }
 
                 // Sign In Button
-                Button(action: {}) {
+                Button(action: {
+                    goDashboard = true
+                }) {
                     Text("Sign In")
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
@@ -86,6 +89,9 @@ struct LoginView: View {
             .background(Color.black.opacity(0.35))
             .cornerRadius(20)
             .padding()
+        }
+        .navigationDestination(isPresented: $goDashboard){
+            StaffDashboardView()
         }
     }
 }
