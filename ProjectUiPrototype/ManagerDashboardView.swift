@@ -22,17 +22,17 @@ struct ManagerDashboardView: View {
                 .ignoresSafeArea()
                 .blur(radius: 1.5)
                 .overlay(Color.black.opacity(0.15))
-
+            
             VStack {
                 Spacer()
-
+                
                 VStack(spacing: 14) {
-
+                    
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Track")
                             .font(.headline)
                             .foregroundColor(.white)
-
+                        
                         HStack {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Sales")
@@ -41,9 +41,9 @@ struct ManagerDashboardView: View {
                             }
                             .foregroundColor(.white.opacity(0.85))
                             .font(.subheadline)
-
+                            
                             Spacer()
-
+                            
                             VStack(alignment: .trailing, spacing: 8) {
                                 Text("3,420")
                                     .fontWeight(.semibold)
@@ -59,43 +59,42 @@ struct ManagerDashboardView: View {
                     .padding(16)
                     .background(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.85))
                     .cornerRadius(18)
-
+                    
                     ManagerPill(title: "Manage Shifts", bg: Color.yellow, fg: .black) {
-                                        goToShifts = true
-                                    }
-
-                                    ManagerPill(title: "Post Announcement", bg: Color.white.opacity(0.92), fg: .black) {
-                                        goToAnnouncements = true
-                                    }
-
-                                    ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
-                                        goToInventory = true
-                                    }
-
-                                    ManagerPill(title: "Reports", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
-                                        goToReports = true
-                                    }
-                                }
+                        goToShifts = true
+                    }
+                    
+                    ManagerPill(title: "Post Announcement", bg: Color.white.opacity(0.92), fg: .black) {
+                        goToAnnouncements = true
+                    }
+                    
+                    ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
+                        goToInventory = true
+                    }
+                    
+                    ManagerPill(title: "Reports", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
+                        goToReports = true
+                    }
+                }
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 18)
-
+                
                 Spacer()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         
         navigationDestination(isPresented: $goToShifts) {
-                    ManageShiftsView() // add your real view here
-                }
-                .navigationDestination(isPresented: $goToAnnouncements) {
-                    PostAnnouncementView() // add your real view here
-                }
-                .navigationDestination(isPresented: $goToInventory) {
-                    ManagerInventoryView()
-                }
-                .navigationDestination(isPresented: $goToReports) {
-                    ReportsView() // add your real view here
-                }    }
+            ManageShiftsView() //
+        }
+        .navigationDestination(isPresented: $goToAnnouncements) {
+            PostAnnouncementView()
+        }
+        .navigationDestination(isPresented: $goToInventory) {
+            ManagerInventoryView()
+        }
+        
+    }
 }
 
 struct ManagerPill: View {
