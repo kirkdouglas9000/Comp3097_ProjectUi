@@ -23,17 +23,14 @@ struct AnnouncementsView: View {
             VStack {
                 Spacer()
 
-                // Main panel
                 VStack(alignment: .leading, spacing: 16) {
 
-                    // Title (centered like your screenshot)
                     Text("Announcements")
                         .font(.title2.bold())
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 18)
 
-                    // Items
                     VStack(alignment: .leading, spacing: 12) {
                         ForEach(announcements, id: \.self) { item in
                             Text(item)
@@ -46,7 +43,7 @@ struct AnnouncementsView: View {
                     Spacer()
                 }
                 .frame(maxWidth: 360)
-                .frame(maxHeight: 560) // keeps the big-tall look but adapts
+                .frame(maxHeight: 560)
                 .background(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.92))
                 .cornerRadius(28)
                 .padding(.horizontal, 18)

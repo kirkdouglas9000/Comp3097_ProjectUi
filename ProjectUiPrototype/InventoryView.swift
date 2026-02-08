@@ -18,7 +18,6 @@ struct InventoryView: View {
 
     @State private var searchText = ""
 
-    // Sample data
     private let items: [InventoryItem] = [
         .init(name: "Coffee Beans", amount: "25 kg", isLow: false),
         .init(name: "Milk", amount: "3 left", isLow: true),
@@ -57,7 +56,6 @@ struct InventoryView: View {
                 .padding(.top, 6)
 
                 Button(action: {
-                    // TODO: Add item flow later
                 }) {
                     Text("+ Add Item")
                         .font(.headline)
@@ -73,7 +71,6 @@ struct InventoryView: View {
 
                 Spacer()
 
-                // Search bar pill (bottom)
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.white.opacity(0.9))

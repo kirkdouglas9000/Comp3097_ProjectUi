@@ -11,6 +11,7 @@ struct StaffDashboardView: View {
 
     @State private var goAnnouncements = false
     @State private var goInventory = false
+    @State private var goSchedule = false
 
     var body: some View {
         ZStack {
@@ -57,10 +58,9 @@ struct StaffDashboardView: View {
                     )
                     .cornerRadius(18)
 
-                    // Pills
                     VStack(spacing: 14) {
                         DashboardPill(title: "My Schedule") {
-                            
+                            goSchedule = true
                         }
 
                         DashboardPill(title: "Inventory") {
@@ -84,6 +84,9 @@ struct StaffDashboardView: View {
         }
         .navigationDestination(isPresented: $goInventory){
             InventoryView()
+        }
+        .navigationDestination(isPresented: $goSchedule){
+            MyScheduleView()
         }
     }
 }
