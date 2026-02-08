@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct ManagerDashboardView: View {
+    
+        @State private var goToShifts = false
+        @State private var goToAnnouncements = false
+        @State private var goToInventory = false
+        @State private var goToReports = false
+    
     var body: some View {
         ZStack {
             Image("pointseven")
@@ -54,11 +60,22 @@ struct ManagerDashboardView: View {
                     .background(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.85))
                     .cornerRadius(18)
 
-                    ManagerPill(title: "Manage Shifts", bg: Color.yellow, fg: .black) {}
-                    ManagerPill(title: "Post Announcement", bg: Color.white.opacity(0.92), fg: .black) {}
-                    ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {}
-                    ManagerPill(title: "Reports", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {}
-                }
+                    ManagerPill(title: "Manage Shifts", bg: Color.yellow, fg: .black) {
+                                        goToShifts = true
+                                    }
+
+                                    ManagerPill(title: "Post Announcement", bg: Color.white.opacity(0.92), fg: .black) {
+                                        goToAnnouncements = true
+                                    }
+
+                                    ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
+                                        goToInventory = true
+                                    }
+
+                                    ManagerPill(title: "Reports", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
+                                        goToReports = true
+                                    }
+                                }
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 18)
 
@@ -66,7 +83,19 @@ struct ManagerDashboardView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-    }
+        
+        navigationDestination(isPresented: $goToShifts) {
+                    ManageShiftsView() // add your real view here
+                }
+                .navigationDestination(isPresented: $goToAnnouncements) {
+                    PostAnnouncementView() // add your real view here
+                }
+                .navigationDestination(isPresented: $goToInventory) {
+                    ManagerInventoryView()
+                }
+                .navigationDestination(isPresented: $goToReports) {
+                    ReportsView() // add your real view here
+                }    }
 }
 
 struct ManagerPill: View {

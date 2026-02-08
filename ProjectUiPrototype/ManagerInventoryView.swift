@@ -1,9 +1,3 @@
-//
-//  ManagerInventoryView.swift
-//  ProjectUiPrototype
-//
-//  Created by Kirk on 2026-02-08.
-//
 import SwiftUI
 
 struct ManagerInventoryView: View {
@@ -24,9 +18,7 @@ struct ManagerInventoryView: View {
     ]
 
     var filteredItems: [ManagerInventoryItem] {
-        if search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return items
-        }
+        if search.isEmpty { return items }
         return items.filter { $0.name.localizedCaseInsensitiveContains(search) }
     }
 
@@ -37,7 +29,6 @@ struct ManagerInventoryView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
                 .blur(radius: 1.5)
-                .overlay(Color.black.opacity(0.12))
 
             VStack(spacing: 18) {
 
@@ -46,7 +37,6 @@ struct ManagerInventoryView: View {
                     .foregroundColor(.white)
                     .padding(.top, 40)
 
-                // ITEMS
                 VStack(spacing: 12) {
                     ForEach(filteredItems) { item in
                         ManagerInventoryRow(item: item)
@@ -54,38 +44,30 @@ struct ManagerInventoryView: View {
                 }
                 .padding(.horizontal, 20)
 
-                // ADD ITEM BUTTON
-                Button {
-                    // SHOW ADD ITEM FORM
-                } label: {
-                    Text("+ Add Item")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.brown.opacity(0.85))
-                        .clipShape(Capsule())
-                }
-                .padding(.horizontal, 40)
-
                 Spacer()
-
-                // SEARCH BAR
-                HStack(spacing: 10) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white.opacity(0.9))
-
-                    TextField("Search Inventory", text: $search)
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background(Color.brown.opacity(0.85))
-                .clipShape(Capsule())
-                .padding(.horizontal, 24)
-                .padding(.bottom, 18)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct ManagerInventoryRow: View {
+    let item: ManagerInventoryView.ManagerInventoryItem
+
+    var body: some View {
+        HStack {
+            Text(item.name)
+                .font(.headline)
+                .foregroundColor(.white)
+
+            Spacer()
+
+            Text(item.amount)
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(item.isLow ? .yellow : .white)
+        }
+        .padding(16)
+        .background(Color.black.opacity(0.5))
+        .cornerRadius(12)
+        .padding(.horizontal, 10)
     }
 }
