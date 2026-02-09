@@ -51,7 +51,7 @@ struct AnnouncementsView: View {
                 Spacer()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+    
     }
 }
 

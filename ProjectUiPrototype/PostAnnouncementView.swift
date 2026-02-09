@@ -1,5 +1,5 @@
 //
-//  ManageShiftsView.swift
+//  PostAnnouncementsView.swift
 //  ProjectUiPrototype
 //
 //  Created by Kirk on 2026-02-08.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct ManageShiftsView: View {
+struct PostAnnouncementView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var shiftName = ""
-    @State private var shiftTime = ""
+    @State private var title = ""
+    @State private var message = ""
 
     var body: some View {
         VStack(spacing: 20) {
@@ -31,19 +31,20 @@ struct ManageShiftsView: View {
             .padding(.top, 12)
 
             
-            Text("Manage Shifts")
-                .font(.system(size: 32, weight: .bold))
+            Text("POST AN ANNOUNCEMENT")
+                .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.white)
+                .padding(.top, -8)
 
             
             VStack(spacing: 16) {
-                TextField("Shift Name", text: $shiftName)
+                TextField("Title", text: $title)
                     .padding()
                     .background(Color.white.opacity(0.15))
                     .cornerRadius(12)
                     .foregroundColor(.white)
 
-                TextField("Shift Time", text: $shiftTime)
+                TextField("Message", text: $message)
                     .padding()
                     .background(Color.white.opacity(0.15))
                     .cornerRadius(12)
@@ -53,24 +54,24 @@ struct ManageShiftsView: View {
 
             
             Button(action: {}) {
-                Text("Add Shift")
+                Text("Publish")
                     .foregroundColor(.white)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.orange)
+                    .background(Color.brown.opacity(0.7))
                     .clipShape(Capsule())
             }
             .padding(.horizontal, 60)
 
             
-            Button(action: {}) {
-                Text("View All Shifts")
-                    .foregroundColor(.white)
+            Button(action: { dismiss() }) {
+                Text("Cancel")
+                    .foregroundColor(.white.opacity(0.8))
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.brown.opacity(0.75))
+                    .background(Color.brown.opacity(0.45))
                     .clipShape(Capsule())
             }
             .padding(.horizontal, 60)

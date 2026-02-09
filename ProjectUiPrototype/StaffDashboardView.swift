@@ -27,7 +27,7 @@ struct StaffDashboardView: View {
 
                 VStack(spacing: 16) {
 
-                    // Announcements card
+                    
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Announcements")
                             .font(.headline)
@@ -78,7 +78,8 @@ struct StaffDashboardView: View {
                 Spacer()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+
+        
         .navigationDestination(isPresented: $goAnnouncements) {
             AnnouncementsView()
         }

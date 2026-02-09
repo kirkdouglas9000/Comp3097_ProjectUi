@@ -11,16 +11,16 @@ struct WelcomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background image
+                
                 Image("pointseven")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
-
+                
                 VStack(spacing: 20) {
-
+                    
                     Spacer()
-
+                    
                     
                     VStack(spacing: 6) {
                         
@@ -28,11 +28,11 @@ struct WelcomeView: View {
                             .font(.caption)
                             .foregroundColor(.white)
                             .opacity(0.85)
-
+                        
                         Text("POINT SEVEN")
                             .font(.system(size: 36, weight: .bold))
                             .foregroundColor(.white)
-
+                        
                         HStack {
                             Text("EST")
                                 .foregroundColor(.white.opacity(0.8))
@@ -42,12 +42,12 @@ struct WelcomeView: View {
                         .font(.headline)
                     }
                     .padding(.bottom, 30)
-
+                    
                     Spacer()
-
-                    // --- Login + Register Buttons ---
+                    
+                    
                     HStack(spacing: 20) {
-
+                        
                         NavigationLink(destination: LoginView()) {
                             Text("Login")
                                 .foregroundColor(.white)
@@ -56,7 +56,7 @@ struct WelcomeView: View {
                                 .background(Color.black.opacity(0.5))
                                 .clipShape(Capsule())
                         }
-
+                        
                         NavigationLink(destination: RegisterView()) {
                             Text("Register")
                                 .foregroundColor(.white)
@@ -70,6 +70,8 @@ struct WelcomeView: View {
                 }
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
+        
     }
 }
 

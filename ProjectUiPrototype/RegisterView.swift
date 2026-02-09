@@ -16,7 +16,7 @@ struct RegisterView: View {
 
     var body: some View {
         ZStack {
-            // Background image
+            
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
@@ -38,7 +38,7 @@ struct RegisterView: View {
                     CustomSecureField(text: $confirmPassword, placeholder: "Repeat Password")
                 }
 
-                // Register button
+                
                 Button(action: {
                     
                 }) {
@@ -61,6 +61,10 @@ struct RegisterView: View {
             .cornerRadius(25)
             .padding()
         }
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+
     }
 }
 

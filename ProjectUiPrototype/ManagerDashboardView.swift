@@ -82,20 +82,24 @@ struct ManagerDashboardView: View {
                 Spacer()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
         
-        navigationDestination(isPresented: $goToShifts) {
-            ManageShiftsView() //
-        }
-        .navigationDestination(isPresented: $goToAnnouncements) {
-            PostAnnouncementView()
-        }
-        .navigationDestination(isPresented: $goToInventory) {
-            ManagerInventoryView()
-        }
-        
-    }
-}
+               
+               .navigationDestination(isPresented: $goToShifts) {
+                   ManageShiftsView()
+               }
+               .navigationDestination(isPresented: $goToAnnouncements) {
+                   PostAnnouncementView()
+               }
+               .navigationDestination(isPresented: $goToInventory) {
+                   ManagerInventoryView()
+               }
+               .navigationDestination(isPresented: $goToReports) {
+                   Text("Reports Page Placeholder")
+                       .font(.largeTitle)
+                       .padding()
+               }
+           }
+       }
 
 struct ManagerPill: View {
     let title: String

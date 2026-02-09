@@ -99,6 +99,10 @@ struct LoginView: View {
         .navigationDestination(isPresented: $goManagerDashboard){
             ManagerDashboardView()
         }
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+
     }
 }
 

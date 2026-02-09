@@ -87,7 +87,8 @@ struct InventoryView: View {
                 .padding(.bottom, 18)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+        
+        
     }
 }
 

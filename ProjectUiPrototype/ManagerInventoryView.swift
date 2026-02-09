@@ -1,73 +1,118 @@
+//
+//  ManageShiftsView.swift
+//  ProjectUiPrototype
+//
+//  Created by Kirk on 2026-02-08.
+
+
+
+
 import SwiftUI
 
 struct ManagerInventoryView: View {
 
-    struct ManagerInventoryItem: Identifiable {
+    struct Item: Identifiable {
         let id = UUID()
         let name: String
         let amount: String
-        let isLow: Bool
+        let low: Bool
     }
 
+    @Environment(\.dismiss) private var dismiss
     @State private var search = ""
 
-    private let items: [ManagerInventoryItem] = [
-        .init(name: "Coffee Beans", amount: "25 kg", isLow: false),
-        .init(name: "Milk", amount: "3 left", isLow: true),
-        .init(name: "Bagels", amount: "12 pcs", isLow: false)
+    private let items: [Item] = [
+        .init(name: "Coffee Beans", amount: "25 kg", low: false),
+        .init(name: "Milk", amount: "3 left", low: true),
+        .init(name: "Bagels", amount: "12 pcs", low: false)
     ]
 
-    var filteredItems: [ManagerInventoryItem] {
+    var filtered: [Item] {
         if search.isEmpty { return items }
         return items.filter { $0.name.localizedCaseInsensitiveContains(search) }
     }
 
     var body: some View {
-        ZStack {
+        VStack(spacing: 20) {
+
+            
+            HStack {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(10)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.top, 12)
+
+            Text("Inventory")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.top, -6)
+
+            
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.white.opacity(0.8))
+                TextField("Search Items", text: $search)
+                    .foregroundColor(.white)
+            }
+            .padding(14)
+            .background(Color.black.opacity(0.45))
+            .clipShape(Capsule())
+            .padding(.horizontal, 24)
+
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 14) {
+                    ForEach(filtered) { item in
+                        HStack {
+                            Text(item.name)
+                                .foregroundColor(.white)
+                                .font(.headline)
+
+                            Spacer()
+
+                            Text(item.amount)
+                                .foregroundColor(item.low ? .yellow : .white)
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .padding()
+                        .background(Color.black.opacity(0.55))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 10)
+            }
+
+            
+            Button(action: {}) {
+                Text("+ Add Item")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color(red: 0.45, green: 0.28, blue: 0.14))
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, 60)
+            .padding(.bottom, 20)
+        }
+        .background(
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
+                .blur(radius: 2)
+                .overlay(Color.black.opacity(0.15))
                 .ignoresSafeArea()
-                .blur(radius: 1.5)
-
-            VStack(spacing: 18) {
-
-                Text("Inventory")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.white)
-                    .padding(.top, 40)
-
-                VStack(spacing: 12) {
-                    ForEach(filteredItems) { item in
-                        ManagerInventoryRow(item: item)
-                    }
-                }
-                .padding(.horizontal, 20)
-
-                Spacer()
-            }
-        }
-    }
-}
-
-struct ManagerInventoryRow: View {
-    let item: ManagerInventoryView.ManagerInventoryItem
-
-    var body: some View {
-        HStack {
-            Text(item.name)
-                .font(.headline)
-                .foregroundColor(.white)
-
-            Spacer()
-
-            Text(item.amount)
-                .font(.subheadline.weight(.semibold))
-                .foregroundColor(item.isLow ? .yellow : .white)
-        }
-        .padding(16)
-        .background(Color.black.opacity(0.5))
-        .cornerRadius(12)
-        .padding(.horizontal, 10)
+        )
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }

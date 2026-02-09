@@ -87,7 +87,7 @@ struct MyScheduleView: View {
             }
             .padding(.horizontal, 18)
         }
-        .navigationBarTitleDisplayMode(.inline)
+        
     }
 }
 
