@@ -12,7 +12,7 @@ struct ManagerDashboardView: View {
         @State private var goToShifts = false
         @State private var goToAnnouncements = false
         @State private var goToInventory = false
-        @State private var goToReports = false
+    
     
     var body: some View {
         ZStack {
@@ -71,10 +71,7 @@ struct ManagerDashboardView: View {
                     ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
                         goToInventory = true
                     }
-                    
-                    ManagerPill(title: "Reports", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
-                        goToReports = true
-                    }
+                   
                 }
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 18)
@@ -93,11 +90,7 @@ struct ManagerDashboardView: View {
                .navigationDestination(isPresented: $goToInventory) {
                    ManagerInventoryView()
                }
-               .navigationDestination(isPresented: $goToReports) {
-                   Text("Reports Page Placeholder")
-                       .font(.largeTitle)
-                       .padding()
-               }
+               
            }
        }
 
