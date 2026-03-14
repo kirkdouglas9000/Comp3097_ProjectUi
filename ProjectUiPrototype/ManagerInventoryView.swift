@@ -5,7 +5,6 @@
 //  Created by Kirk on 2026-02-08.
 
 
-
 import SwiftUI
 
 struct ManagerInventoryView: View {
@@ -19,8 +18,7 @@ struct ManagerInventoryView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var search = ""
-    @State private var newItemName = ""
-    @State private var newItemAmount = ""
+    @State private var showAddItemSheet = false
 
     @State private var items: [Item] = [
         .init(name: "Coffee Beans", amount: "25 kg", low: false),
@@ -58,27 +56,13 @@ struct ManagerInventoryView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.white.opacity(0.8))
 
-                TextField("Search Items", text: $search)
+                TextField("", text: $search, prompt: Text("Search Items").foregroundColor(.white.opacity(0.7)))
                     .foregroundColor(.white)
+                    .accentColor(.white)
             }
             .padding(14)
             .background(Color.black.opacity(0.45))
             .clipShape(Capsule())
-            .padding(.horizontal, 24)
-
-            VStack(spacing: 12) {
-                TextField("New item name", text: $newItemName)
-                    .padding()
-                    .background(Color.black.opacity(0.45))
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-
-                TextField("New item amount", text: $newItemAmount)
-                    .padding()
-                    .background(Color.black.opacity(0.45))
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
             .padding(.horizontal, 24)
 
             ScrollView(showsIndicators: false) {
@@ -116,7 +100,9 @@ struct ManagerInventoryView: View {
                 .padding(.top, 10)
             }
 
-            Button(action: addItem) {
+            Button(action: {
+                showAddItemSheet = true
+            }) {
                 Text("+ Add Item")
                     .foregroundColor(.white)
                     .font(.headline)
@@ -138,21 +124,89 @@ struct ManagerInventoryView: View {
         )
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-    }
-
-    func addItem() {
-        guard !newItemName.trimmingCharacters(in: .whitespaces).isEmpty,
-              !newItemAmount.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-
-        let lowStock = newItemAmount.lowercased().contains("left")
-        let newItem = Item(name: newItemName, amount: newItemAmount, low: lowStock)
-
-        items.append(newItem)
-        newItemName = ""
-        newItemAmount = ""
+        .sheet(isPresented: $showAddItemSheet) {
+            AddInventoryItemView { name, amount in
+                let lowStock = amount.lowercased().contains("left") || amount.lowercased().contains("low")
+                let newItem = Item(name: name, amount: amount, low: lowStock)
+                items.append(newItem)
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     func deleteItem(_ item: Item) {
         items.removeAll { $0.id == item.id }
+    }
+}
+
+struct AddInventoryItemView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var itemName = ""
+    @State private var itemAmount = ""
+
+    var onSave: (String, String) -> Void
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color(red: 0.10, green: 0.10, blue: 0.12)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    Text("Add New Item")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+
+                    TextField("", text: $itemName, prompt: Text("Item name").foregroundColor(.white.opacity(0.6)))
+                        .padding()
+                        .background(Color.white.opacity(0.08))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+
+                    TextField("", text: $itemAmount, prompt: Text("Amount").foregroundColor(.white.opacity(0.6)))
+                        .padding()
+                        .background(Color.white.opacity(0.08))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+
+                    Button(action: saveItem) {
+                        Text("Save Item")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(red: 0.45, green: 0.28, blue: 0.14))
+                            .clipShape(Capsule())
+                    }
+
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(24)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    func saveItem() {
+        let cleanName = itemName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanAmount = itemAmount.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !cleanName.isEmpty, !cleanAmount.isEmpty else { return }
+
+        onSave(cleanName, cleanAmount)
+        dismiss()
     }
 }
