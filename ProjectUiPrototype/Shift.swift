@@ -8,7 +8,12 @@
 import Foundation
 
 struct Shift: Identifiable {
+
     let id = UUID()
-    var name: String
-    var time: String
+
+    var employeeName: String
+    var position: String
+    var date: String
+    var startTime: String
+    var endTime: String
 }

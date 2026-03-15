@@ -8,19 +8,25 @@
 import SwiftUI
 
 struct ShiftListView: View {
-    
+
     var shifts: [Shift]
-    
+
     var body: some View {
-        
+
         List(shifts) { shift in
-            
-            VStack(alignment: .leading) {
-                Text(shift.name)
+
+            VStack(alignment: .leading, spacing: 6) {
+
+                Text(shift.employeeName)
                     .font(.headline)
-                
-                Text(shift.time)
+
+                Text(shift.position)
+
+                Text("\(shift.date)")
+
+                Text("\(shift.startTime) - \(shift.endTime)")
                     .font(.subheadline)
+                    .foregroundColor(.gray)
             }
         }
         .navigationTitle("All Shifts")

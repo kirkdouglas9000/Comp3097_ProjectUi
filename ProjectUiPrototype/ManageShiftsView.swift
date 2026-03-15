@@ -4,18 +4,22 @@
 //
 //  Created by Kirk on 2026-02-08.
 //
-
 import SwiftUI
 
 struct ManageShiftsView: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @State private var shiftName = ""
-    @State private var shiftTime = ""
+    @State private var employeeName = ""
+    @State private var position = ""
+    
+    @State private var shiftDate = Date()
+    @State private var startTime = Date()
+    @State private var endTime = Date()
     
     @State private var shifts: [Shift] = []
     @State private var showShifts = false
+    
     
     var body: some View {
         
@@ -46,17 +50,75 @@ struct ManageShiftsView: View {
                 
                 VStack(spacing: 16) {
                     
-                    TextField("Shift Name", text: $shiftName)
+                    TextField("Employee Name", text: $employeeName)
                         .padding()
-                        .background(Color.white.opacity(0.15))
+                        .background(Color.white)
                         .cornerRadius(12)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
+
+                    TextField("Position (Barista, Cashier, etc)", text: $position)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .foregroundColor(.black)
                     
-                    TextField("Shift Time", text: $shiftTime)
+                    
+                    VStack(alignment: .leading) {
+                        
+                        Text("Shift Date")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        DatePicker(
+                            "",
+                            selection: $shiftDate,
+                            displayedComponents: [.date]
+                        )
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
                         .padding()
-                        .background(Color.white.opacity(0.15))
+                        .background(Color.white.opacity(0.25))
                         .cornerRadius(12)
-                        .foregroundColor(.white)
+                    }
+                    
+                    
+                    VStack(alignment: .leading) {
+                        
+                        Text("Start Time")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        DatePicker(
+                            "",
+                            selection: $startTime,
+                            displayedComponents: [.hourAndMinute]
+                        )
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .padding()
+                        .background(Color.white.opacity(0.25))
+                        .cornerRadius(12)
+                    }
+                    
+                    
+                    VStack(alignment: .leading) {
+                        
+                        Text("End Time")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        DatePicker(
+                            "",
+                            selection: $endTime,
+                            displayedComponents: [.hourAndMinute]
+                        )
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .padding()
+                        .background(Color.white.opacity(0.25))
+                        .cornerRadius(12)
+                    }
+                    
                 }
                 .padding(.horizontal, 24)
                 
@@ -101,16 +163,33 @@ struct ManageShiftsView: View {
                 ShiftListView(shifts: shifts)
             }
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
     
     
     func addShift() {
         
-        let newShift = Shift(name: shiftName, time: shiftTime)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        
+        
+        let newShift = Shift(
+            employeeName: employeeName,
+            position: position,
+            date: dateFormatter.string(from: shiftDate),
+            startTime: timeFormatter.string(from: startTime),
+            endTime: timeFormatter.string(from: endTime)
+        )
+        
         
         shifts.append(newShift)
         
-        shiftName = ""
-        shiftTime = ""
+        
+        employeeName = ""
+        position = ""
     }
 }
