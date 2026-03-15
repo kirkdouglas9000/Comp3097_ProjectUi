@@ -161,7 +161,8 @@ struct ManageShiftsView: View {
                     .ignoresSafeArea()
             )
             .navigationDestination(isPresented: $showShifts) {
-                ShiftListView(shifts: shiftStore.shifts)
+                ShiftListView()
+                    .environmentObject(shiftStore)
             }
         }
         .navigationBarBackButtonHidden(true)

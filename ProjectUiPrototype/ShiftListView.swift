@@ -9,26 +9,44 @@ import SwiftUI
 
 struct ShiftListView: View {
 
-    var shifts: [Shift]
+    @EnvironmentObject var shiftStore: ShiftStore
 
     var body: some View {
 
-        List(shifts) { shift in
+        List {
 
-            VStack(alignment: .leading, spacing: 6) {
+            ForEach(shiftStore.shifts) { shift in
 
-                Text(shift.employeeName)
-                    .font(.headline)
+                NavigationLink {
 
-                Text(shift.position)
+                    EditShiftView(shift: shift)
+                        .environmentObject(shiftStore)
 
-                Text("\(shift.date)")
+                } label: {
 
-                Text("\(shift.startTime) - \(shift.endTime)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 6) {
+
+                        Text(shift.employeeName)
+                            .font(.headline)
+
+                        Text(shift.position)
+
+                        Text(shift.date)
+
+                        Text("\(shift.startTime) - \(shift.endTime)")
+                            .foregroundColor(.gray)
+
+                    }
+                    .padding(.vertical, 6)
+                }
             }
+            .onDelete(perform: deleteShift)
         }
         .navigationTitle("All Shifts")
+    }
+
+
+    func deleteShift(at offsets: IndexSet) {
+        shiftStore.shifts.remove(atOffsets: offsets)
     }
 }
