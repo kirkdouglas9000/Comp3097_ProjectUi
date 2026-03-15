@@ -4,14 +4,14 @@
 //
 //  Created by Andrei Gania on 2026-02-08.
 //
-
 import SwiftUI
 
 struct AnnouncementsView: View {
 
-    let announcements: [String] = ["Announcements", "New update", "New features", "go home"]
+    @EnvironmentObject var announcementStore: AnnouncementStore
 
     var body: some View {
+
         ZStack {
             Image("pointseven")
                 .resizable()
@@ -31,11 +31,32 @@ struct AnnouncementsView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 18)
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        ForEach(announcements, id: \.self) { item in
-                            Text(item)
-                                .font(.headline)
-                                .foregroundColor(.white.opacity(0.9))
+                    VStack(alignment: .leading, spacing: 16) {
+
+                        if announcementStore.announcements.isEmpty {
+
+                            Text("No announcements yet.")
+                                .foregroundColor(.white.opacity(0.8))
+
+                        } else {
+
+                            ForEach(announcementStore.announcements) { announcement in
+
+                                VStack(alignment: .leading, spacing: 6) {
+
+                                    Text(announcement.title)
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+
+                                    Text(announcement.message)
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.9))
+
+                                }
+
+                                Divider()
+                                    .background(Color.white.opacity(0.3))
+                            }
                         }
                     }
                     .padding(.horizontal, 24)
@@ -51,12 +72,12 @@ struct AnnouncementsView: View {
                 Spacer()
             }
         }
-    
     }
 }
 
 #Preview {
     NavigationStack {
         AnnouncementsView()
+            .environmentObject(AnnouncementStore())
     }
 }

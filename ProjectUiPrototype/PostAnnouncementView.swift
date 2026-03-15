@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct PostAnnouncementView: View {
+
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var announcementStore: AnnouncementStore
+    
     @State private var title = ""
     @State private var message = ""
 
     var body: some View {
         VStack(spacing: 20) {
 
-            
             HStack {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
@@ -30,30 +32,28 @@ struct PostAnnouncementView: View {
             .padding(.horizontal)
             .padding(.top, 12)
 
-            
             Text("POST AN ANNOUNCEMENT")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.white)
                 .padding(.top, -8)
 
-            
             VStack(spacing: 16) {
+
                 TextField("Title", text: $title)
                     .padding()
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.white)
                     .cornerRadius(12)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
 
                 TextField("Message", text: $message)
                     .padding()
-                    .background(Color.white.opacity(0.15))
+                    .background(Color.white)
                     .cornerRadius(12)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
             }
             .padding(.horizontal, 24)
 
-            
-            Button(action: {}) {
+            Button(action: publishAnnouncement) {
                 Text("Publish")
                     .foregroundColor(.white)
                     .font(.headline)
@@ -64,7 +64,6 @@ struct PostAnnouncementView: View {
             }
             .padding(.horizontal, 60)
 
-            
             Button(action: { dismiss() }) {
                 Text("Cancel")
                     .foregroundColor(.white.opacity(0.8))
@@ -88,5 +87,21 @@ struct PostAnnouncementView: View {
         )
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+
+    func publishAnnouncement() {
+
+        let newAnnouncement = Announcement(
+            title: title,
+            message: message
+        )
+
+        announcementStore.announcements.append(newAnnouncement)
+
+        title = ""
+        message = ""
+
+        dismiss()
     }
 }
