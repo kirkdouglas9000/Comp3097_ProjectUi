@@ -8,25 +8,12 @@
 import SwiftUI
 
 struct MyScheduleView: View {
-    struct Shift: Identifiable {
-        let id = UUID()
-        let day: String
-        let time: String
-        let isOff: Bool
-    }
-
-    private let shifts: [Shift] = [
-        .init(day: "Monday", time: "9:00 AM – 5:00 PM", isOff: false),
-        .init(day: "Tuesday", time: "10:00 AM – 6:00 PM", isOff: false),
-        .init(day: "Wednesday", time: "OFF", isOff: true),
-        .init(day: "Thursday", time: "8:00 AM – 4:00 PM", isOff: false),
-        .init(day: "Friday", time: "12:00 PM – 8:00 PM", isOff: false),
-        .init(day: "Saturday", time: "9:00 AM – 3:00 PM", isOff: false),
-        .init(day: "Sunday", time: "OFF", isOff: true)
-    ]
-
+    
+    @EnvironmentObject var shiftStore: ShiftStore
+    
     var body: some View {
         ZStack {
+            
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
@@ -47,21 +34,44 @@ struct MyScheduleView: View {
                 }
                 .padding(.top, 12)
 
+                
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Weekly Schedule")
+                    
+                    Text("Upcoming Shifts")
                         .font(.headline)
                         .foregroundColor(.black.opacity(0.85))
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(shifts) { shift in
-                            HStack(spacing: 6) {
-                                Text("\(shift.day):")
-                                    .foregroundColor(shift.isOff ? .red : .black.opacity(0.75))
-
-                                Text(shift.time)
-                                    .foregroundColor(shift.isOff ? .red : .black.opacity(0.75))
+                    
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        
+                        if shiftStore.shifts.isEmpty {
+                            
+                            Text("No shifts scheduled")
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                            
+                        } else {
+                            
+                            ForEach(shiftStore.shifts) { shift in
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    
+                                    Text(shift.employeeName)
+                                        .font(.headline)
+                                    
+                                    Text(shift.position)
+                                        .font(.subheadline)
+                                    
+                                    Text(shift.date)
+                                        .font(.subheadline)
+                                    
+                                    Text("\(shift.startTime) - \(shift.endTime)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Divider()
                             }
-                            .font(.subheadline)
                         }
                     }
                 }
@@ -70,6 +80,7 @@ struct MyScheduleView: View {
                 .background(Color.white.opacity(0.92))
                 .cornerRadius(12)
 
+                
                 Button(action: {
                 }) {
                     Text("Request Shift Change")
@@ -87,12 +98,12 @@ struct MyScheduleView: View {
             }
             .padding(.horizontal, 18)
         }
-        
     }
 }
 
 #Preview {
     NavigationStack {
         MyScheduleView()
+            .environmentObject(ShiftStore())
     }
 }

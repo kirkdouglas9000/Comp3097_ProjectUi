@@ -9,6 +9,7 @@ import SwiftUI
 struct ManageShiftsView: View {
     
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var shiftStore: ShiftStore
     
     @State private var employeeName = ""
     @State private var position = ""
@@ -160,7 +161,7 @@ struct ManageShiftsView: View {
                     .ignoresSafeArea()
             )
             .navigationDestination(isPresented: $showShifts) {
-                ShiftListView(shifts: shifts)
+                ShiftListView(shifts: shiftStore.shifts)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -186,7 +187,7 @@ struct ManageShiftsView: View {
         )
         
         
-        shifts.append(newShift)
+        shiftStore.shifts.append(newShift)
         
         
         employeeName = ""
