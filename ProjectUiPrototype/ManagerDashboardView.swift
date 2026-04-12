@@ -9,10 +9,10 @@ import SwiftUI
 
 struct ManagerDashboardView: View {
     
-        @State private var goToShifts = false
-        @State private var goToAnnouncements = false
-        @State private var goToInventory = false
-    
+    @State private var goToShifts = false
+    @State private var goToAnnouncements = false
+    @State private var goToInventory = false
+    @State private var goToUsers = false
     
     var body: some View {
         ZStack {
@@ -27,6 +27,7 @@ struct ManagerDashboardView: View {
                 Spacer()
                 
                 VStack(spacing: 14) {
+                    
                     
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Track")
@@ -60,6 +61,7 @@ struct ManagerDashboardView: View {
                     .background(Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.85))
                     .cornerRadius(18)
                     
+                    
                     ManagerPill(title: "Manage Shifts", bg: Color.yellow, fg: .black) {
                         goToShifts = true
                     }
@@ -71,7 +73,11 @@ struct ManagerDashboardView: View {
                     ManagerPill(title: "Inventory", bg: Color(red: 0.25, green: 0.16, blue: 0.12).opacity(0.75), fg: .white) {
                         goToInventory = true
                     }
-                   
+                    
+                    
+                    ManagerPill(title: "View Users", bg: Color.blue.opacity(0.8), fg: .white) {
+                        goToUsers = true
+                    }
                 }
                 .frame(maxWidth: 360)
                 .padding(.horizontal, 18)
@@ -80,19 +86,22 @@ struct ManagerDashboardView: View {
             }
         }
         
-               
-               .navigationDestination(isPresented: $goToShifts) {
-                   ManageShiftsView()
-               }
-               .navigationDestination(isPresented: $goToAnnouncements) {
-                   PostAnnouncementView()
-               }
-               .navigationDestination(isPresented: $goToInventory) {
-                   ManagerInventoryView()
-               }
-               
-           }
-       }
+        
+        .navigationDestination(isPresented: $goToShifts) {
+            ManageShiftsView(isPresented: $goToShifts)
+        }
+        .navigationDestination(isPresented: $goToAnnouncements) {
+            PostAnnouncementView(isPresented: $goToAnnouncements)
+        }
+        .navigationDestination(isPresented: $goToInventory) {
+            ManagerInventoryView(isPresented: $goToInventory)
+        }
+        .navigationDestination(isPresented: $goToUsers) {   
+            UsersDebugView()
+        }
+    }
+}
+
 
 struct ManagerPill: View {
     let title: String

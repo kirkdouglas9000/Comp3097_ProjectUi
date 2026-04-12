@@ -8,84 +8,190 @@
 import SwiftUI
 
 struct ManageShiftsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var shiftName = ""
-    @State private var shiftTime = ""
+    @EnvironmentObject var store: StorageManager
+    @Binding var isPresented: Bool
+
+    @State private var selectedUser: User?
+    @State private var startDate = Date()
+    @State private var endDate = Date().addingTimeInterval(3600 * 8)
+    @State private var position = ""
+    @State private var showSuccess = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        GeometryReader { geo in
+            ZStack {
+                
+                Image("pointseven")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+                    .ignoresSafeArea()
+                    .overlay(Color.black.opacity(0.45))
 
-            
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
+                
+                VStack {
+                    Spacer()
+
+                    VStack(spacing: 10) {
+                        Text("Manage Shifts")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .padding(.bottom, 4)
+
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Select Employee")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+
+                            Picker("Select Employee", selection: $selectedUser) {
+                                Text("Choose Employee").tag(nil as User?)
+                                ForEach(store.users) { user in
+                                    Text(user.name).tag(Optional(user))
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .tint(.white)
+                            .frame(maxWidth: .infinity, minHeight: 42)
+                            .padding(.horizontal, 10)
+                            .background(Color.white.opacity(0.18))
+                            .cornerRadius(12)
+                        }
+
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Start Time")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+
+                            DatePicker(
+                                "",
+                                selection: $startDate,
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
+                            .labelsHidden()
+                            .datePickerStyle(.compact)
+                            .tint(.white)
+                            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                            .padding(.horizontal, 10)
+                            .background(Color.white.opacity(0.18))
+                            .cornerRadius(12)
+                            .colorScheme(.dark)
+                        }
+
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("End Time")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+
+                            DatePicker(
+                                "",
+                                selection: $endDate,
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
+                            .labelsHidden()
+                            .datePickerStyle(.compact)
+                            .tint(.white)
+                            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                            .padding(.horizontal, 10)
+                            .background(Color.white.opacity(0.18))
+                            .cornerRadius(12)
+                            .colorScheme(.dark)
+                        }
+
+                        // POSITION
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("Position")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+
+                            TextField(
+                                "",
+                                text: $position,
+                                prompt: Text("Barista / Cashier")
+                                    .foregroundColor(.white.opacity(0.6))
+                            )
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .frame(height: 42)
+                            .background(Color.white.opacity(0.18))
+                            .cornerRadius(12)
+                        }
+
+                        
+                        Button {
+                            guard let user = selectedUser else { return }
+
+                            let currentUserId = UserDefaults.standard.string(forKey: "currentUserId")
+                            guard let managerId = UUID(uuidString: currentUserId ?? "") else { return }
+
+                            let shift = ShiftModel(
+                                userId: user.id,
+                                start: startDate,
+                                end: endDate,
+                                position: position,
+                                location: "Cafe",
+                                createdBy: managerId
+                            )
+
+                            store.addShift(shift)
+                            position = ""
+                            showSuccess = true
+                        } label: {
+                            Text("Add Shift")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 46)
+                                .background(Color.orange)
+                                .cornerRadius(16)
+                        }
+                        .padding(.top, 6)
+
+                        if showSuccess {
+                            Text("Shift added successfully ✅")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                .padding(.top, 2)
+                        }
+                    }
+                    .padding(18)
+                    .frame(maxWidth: 340)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(24)
+                    .padding(.horizontal, 20)
+
+                    Spacer()
                 }
-                Spacer()
+                .padding(.top, 70)
+
+                
+                VStack {
+                    HStack {
+                        Button {
+                            isPresented = false
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 42, height: 42)
+                                .background(Color.black.opacity(0.65))
+                                .clipShape(Circle())
+                        }
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, geo.safeAreaInsets.top + 8)
+
+                    Spacer()
+                }
+                .zIndex(10)
             }
-            .padding(.horizontal)
-            .padding(.top, 12)
-
-            
-            Text("Manage Shifts")
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(.white)
-
-            
-            VStack(spacing: 16) {
-                TextField("Shift Name", text: $shiftName)
-                    .padding()
-                    .background(Color.white.opacity(0.15))
-                    .cornerRadius(12)
-                    .foregroundColor(.white)
-
-                TextField("Shift Time", text: $shiftTime)
-                    .padding()
-                    .background(Color.white.opacity(0.15))
-                    .cornerRadius(12)
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 24)
-
-            
-            Button(action: {}) {
-                Text("Add Shift")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.orange)
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, 60)
-
-            
-            Button(action: {}) {
-                Text("View All Shifts")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.brown.opacity(0.75))
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, 60)
-
-            Spacer()
+            .ignoresSafeArea()
         }
-        .background(
-            Image("pointseven")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 2)
-                .overlay(Color.black.opacity(0.15))
-                .ignoresSafeArea()
-        )
         .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
     }
 }

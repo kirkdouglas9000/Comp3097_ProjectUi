@@ -5,114 +5,131 @@
 //  Created by Kirk on 2026-02-07.
 //
 
+
 import SwiftUI
 
 struct RegisterView: View {
+    @EnvironmentObject var store: StorageManager
+    @Environment(\.dismiss) private var dismiss
+
     @State private var name = ""
     @State private var email = ""
     @State private var username = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
-            
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
                 .overlay(Color.black.opacity(0.45))
 
-            VStack(spacing: 25) {
+            VStack(spacing: 20) {
 
                 Text("Register your account")
                     .font(.headline)
                     .foregroundColor(.white)
-                    .bold()
 
-                VStack(spacing: 18) {
+                VStack(spacing: 12) {
                     CustomField(text: $name, placeholder: "Name")
-                    CustomField(text: $email, placeholder: "Email Address")
+                    CustomField(text: $email, placeholder: "Email")
                     CustomField(text: $username, placeholder: "Username")
                     CustomSecureField(text: $password, placeholder: "Password")
-                    CustomSecureField(text: $confirmPassword, placeholder: "Repeat Password")
+                    CustomSecureField(text: $confirmPassword, placeholder: "Confirm Password")
                 }
 
-                
-                Button(action: {
-                    
-                }) {
+                if let errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                }
+
+                Button {
+
+                    guard !name.isEmpty,
+                          !username.isEmpty,
+                          !password.isEmpty else {
+                        errorMessage = "Fill all fields"
+                        return
+                    }
+
+                    guard password == confirmPassword else {
+                        errorMessage = "Passwords do not match"
+                        return
+                    }
+
+                    let newUser = User(
+                        name: name,
+                        email: email,
+                        username: username,
+                        role: "staff",
+                        phone: nil
+                    )
+
+                    do {
+                        try store.addUser(newUser, password: password)
+                        dismiss()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
+
+                } label: {
                     Text("Register")
-                        .foregroundColor(.white)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(width: 260, height: 42)
                         .background(Color.yellow)
-                        .cornerRadius(25)
+                        .foregroundColor(.black)
+                        .cornerRadius(20)
                 }
-                .padding(.top, 15)
 
-                Spacer(minLength: 20)
+                Spacer()
             }
-            .frame(maxWidth: 350)
-            .padding(.vertical, 40)
-            .padding(.horizontal, 20)
-            .background(Color.black.opacity(0.40))
-            .cornerRadius(25)
+            .frame(maxWidth: 320)
             .padding()
+            .background(Color.black.opacity(0.4))
+            .cornerRadius(20)
         }
-        
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-
     }
 }
-
-#Preview {
-    RegisterView()
-}
-
 
 struct CustomField: View {
     @Binding var text: String
     let placeholder: String
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            if text.isEmpty {
-                Text(placeholder)
-                    .foregroundColor(.white.opacity(0.7))
-                    .padding(.horizontal, 16)
-            }
-
-            TextField("", text: $text)
-                .foregroundColor(.white)
-                .padding()
-        }
-        .background(Color.white.opacity(0.15))
+        TextField(
+            "",
+            text: $text,
+            prompt: Text(placeholder)
+                .foregroundColor(.white.opacity(0.7))
+        )
+        .padding(.horizontal, 10)
+        .frame(height: 42)
+        .background(Color.white.opacity(0.3))
         .cornerRadius(10)
+        .foregroundColor(.white)
     }
 }
-
 
 struct CustomSecureField: View {
     @Binding var text: String
     let placeholder: String
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            if text.isEmpty {
-                Text(placeholder)
-                    .foregroundColor(.white.opacity(0.7))
-                    .padding(.horizontal, 16)
-            }
-
-            SecureField("", text: $text)
-                .foregroundColor(.white)
-                .padding()
-        }
-        .background(Color.white.opacity(0.15))
+        SecureField(
+            "",
+            text: $text,
+            prompt: Text(placeholder)
+                .foregroundColor(.white.opacity(0.7))
+        )
+        .padding(.horizontal, 10)
+        .frame(height: 42)
+        .background(Color.white.opacity(0.3))
         .cornerRadius(10)
+        .foregroundColor(.white)
     }
 }
-

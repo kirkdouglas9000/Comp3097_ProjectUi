@@ -8,118 +8,249 @@
 import SwiftUI
 
 struct InventoryView: View {
-
-    struct InventoryItem: Identifiable {
-        let id = UUID()
-        let name: String
-        let amount: String
-        let isLow: Bool
-    }
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var store: StorageManager
 
     @State private var searchText = ""
 
-    private let items: [InventoryItem] = [
-        .init(name: "Coffee Beans", amount: "25 kg", isLow: false),
-        .init(name: "Milk", amount: "3 left", isLow: true),
-        .init(name: "Bagels", amount: "12 pcs", isLow: false)
-    ]
+    private var filteredItems: [InventoryItemModel] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    var filteredItems: [InventoryItem] {
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return items
+        let items = query.isEmpty
+            ? store.inventory
+            : store.inventory.filter {
+                $0.name.localizedCaseInsensitiveContains(query)
+            }
+
+        return items.sorted { first, second in
+            let firstLow = isLowStock(first)
+            let secondLow = isLowStock(second)
+
+            if firstLow != secondLow {
+                return firstLow && !secondLow
+            }
+
+            return first.name.localizedCaseInsensitiveCompare(second.name) == .orderedAscending
         }
-        return items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
 
     var body: some View {
-        ZStack {
-            Image("pointseven")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .blur(radius: 1.5)
-                .overlay(Color.black.opacity(0.15))
-
-            VStack(spacing: 18) {
-
-                Text("Inventory")
-                    .font(.title2.bold())
-                    .foregroundColor(.white)
-                    .padding(.top, 10)
+        GeometryReader { geo in
+            ZStack {
+                Image("pointseven")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+                    .ignoresSafeArea()
+                    .blur(radius: 1.5)
+                    .overlay(Color.black.opacity(0.28))
 
                 VStack(spacing: 12) {
+                    Spacer()
+                        .frame(height: geo.safeAreaInsets.top + 40)
+
+                    headerView
+                    searchBar
+                    inventoryList
+
+                    Spacer(minLength: 10)
+                }
+                .padding(.horizontal, 16)
+
+                backButtonOverlay(geo: geo)
+            }
+            .ignoresSafeArea()
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var headerView: some View {
+        VStack(spacing: 4) {
+            Text("Inventory")
+                .font(.title.bold())
+                .foregroundColor(.white)
+
+            Text("Check stock levels and update item counts.")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.9))
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.white.opacity(0.8))
+
+            TextField(
+                "",
+                text: $searchText,
+                prompt: Text("Search Inventory")
+                    .foregroundColor(.white.opacity(0.6))
+            )
+            .foregroundColor(.white)
+            .autocapitalization(.none)
+            .disableAutocorrection(true)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: 42)
+        .background(Color.black.opacity(0.45))
+        .clipShape(Capsule())
+    }
+
+    private var inventoryList: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                if filteredItems.isEmpty {
+                    emptyStateView
+                } else {
                     ForEach(filteredItems) { item in
-                        InventoryRow(item: item)
+                        inventoryRow(item)
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 6)
-
-                Button(action: {
-                }) {
-                    Text("+ Add Item")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color(red: 0.45, green: 0.29, blue: 0.16).opacity(0.85))
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 60)
-                .padding(.top, 6)
-
-                Spacer()
-
-                HStack(spacing: 10) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white.opacity(0.9))
-
-                    TextField("Search Inventory", text: $searchText)
-                        .foregroundColor(.white)
-                        .submitLabel(.search)
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background(Color(red: 0.45, green: 0.29, blue: 0.16).opacity(0.85))
-                .clipShape(Capsule())
-                .padding(.horizontal, 24)
-                .padding(.bottom, 18)
             }
+            .padding(.top, 2)
+            .padding(.bottom, 8)
         }
-        
-        
     }
-}
 
-struct InventoryRow: View {
-    let item: InventoryView.InventoryItem
-
-    var body: some View {
-        HStack {
-            Text(item.name)
+    private var emptyStateView: some View {
+        VStack(spacing: 8) {
+            Text("No inventory items found")
                 .font(.headline)
                 .foregroundColor(.white)
 
-            Spacer()
-
-            Text(item.amount)
-                .font(.subheadline.weight(.semibold))
-                .foregroundColor(item.isLow ? Color.yellow : Color.white.opacity(0.9))
+            Text("Try another search term.")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.8))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(
-            item.isLow
-            ? Color(red: 0.46, green: 0.23, blue: 0.13).opacity(0.90)
-            : Color(red: 0.20, green: 0.13, blue: 0.10).opacity(0.85)
-        )
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .background(Color.black.opacity(0.35))
+        .cornerRadius(14)
+    }
+
+    private func inventoryRow(_ item: InventoryItemModel) -> some View {
+        let unitText = item.unit ?? ""
+        let lowStock = isLowStock(item)
+
+        return VStack(spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text(item.name)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+
+                        if lowStock {
+                            Text("LOW")
+                                .font(.caption2.bold())
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(Color.yellow)
+                                .cornerRadius(6)
+                        }
+                    }
+
+                    Text(quantityText(quantity: item.quantity, unit: unitText))
+                        .font(.caption)
+                        .foregroundColor(lowStock ? .yellow : .white.opacity(0.8))
+                }
+
+                Spacer()
+
+                HStack(spacing: 8) {
+                    Button {
+                        updateQuantity(for: item, delta: -1)
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 28, height: 28)
+                            .background(Color.white.opacity(0.14))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+
+                    Text("\(item.quantity)")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 28)
+
+                    Button {
+                        updateQuantity(for: item, delta: 1)
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 28, height: 28)
+                            .background(Color.white.opacity(0.14))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            if let threshold = item.lowStockThreshold {
+                HStack {
+                    Spacer()
+
+                    Text("Low stock at \(threshold)")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.65))
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color.black.opacity(0.42))
         .cornerRadius(12)
     }
-}
 
-#Preview {
-    NavigationStack {
-        InventoryView()
+    private func backButtonOverlay(geo: GeometryProxy) -> some View {
+        VStack {
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.black.opacity(0.45))
+                        .clipShape(Circle())
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, geo.safeAreaInsets.top + 8)
+
+            Spacer()
+        }
+        .zIndex(10)
+    }
+
+    private func quantityText(quantity: Int, unit: String) -> String {
+        if unit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Quantity: \(quantity)"
+        } else {
+            return "Quantity: \(quantity) \(unit)"
+        }
+    }
+
+    private func isLowStock(_ item: InventoryItemModel) -> Bool {
+        guard let threshold = item.lowStockThreshold else { return false }
+        return item.quantity <= threshold
+    }
+
+    private func updateQuantity(for item: InventoryItemModel, delta: Int) {
+        guard let index = store.inventory.firstIndex(where: { $0.id == item.id }) else { return }
+
+        let newValue = max(0, store.inventory[index].quantity + delta)
+        store.inventory[index].quantity = newValue
     }
 }
