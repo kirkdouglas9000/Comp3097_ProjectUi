@@ -6,17 +6,13 @@
 //
 
 import SwiftUI
-
 @main
 struct ProjectUiPrototypeApp: App {
-    
-    @StateObject var shiftStore = ShiftStore()
-    @StateObject var announcementStore = AnnouncementStore()
+    @StateObject private var store = StorageManager.shared
     var body: some Scene {
         WindowGroup {
             WelcomeView()
-                .environmentObject(shiftStore)
-                .environmentObject(announcementStore)
+                .environmentObject(store)
         }
     }
 }

@@ -96,7 +96,7 @@ struct ManagerDashboardView: View {
         .navigationDestination(isPresented: $goToInventory) {
             ManagerInventoryView(isPresented: $goToInventory)
         }
-        .navigationDestination(isPresented: $goToUsers) {   
+        .navigationDestination(isPresented: $goToUsers) {
             UsersDebugView()
         }
     }

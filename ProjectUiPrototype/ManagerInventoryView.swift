@@ -4,209 +4,220 @@
 //
 //  Created by Kirk on 2026-02-08.
 
-
 import SwiftUI
 
 struct ManagerInventoryView: View {
+    @EnvironmentObject var store: StorageManager
 
-    struct Item: Identifiable {
-        let id = UUID()
-        var name: String
-        var amount: String
-        var low: Bool
-    }
+    @Binding var isPresented: Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var search = ""
-    @State private var showAddItemSheet = false
+    @State private var newName = ""
+    @State private var newQuantity = ""
+    @State private var showAdd = false
 
-    @State private var items: [Item] = [
-        .init(name: "Coffee Beans", amount: "25 kg", low: false),
-        .init(name: "Milk", amount: "3 left", low: true),
-        .init(name: "Bagels", amount: "12 pcs", low: false)
-    ]
+    var filtered: [InventoryItemModel] {
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    var filtered: [Item] {
-        if search.isEmpty { return items }
-        return items.filter { $0.name.localizedCaseInsensitiveContains(search) }
+        if query.isEmpty {
+            return store.inventory.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        }
+
+        return store.inventory
+            .filter {
+                $0.name.localizedCaseInsensitiveContains(query)
+            }
+            .sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.top, 12)
-
-            Text("Inventory")
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(.white)
-                .padding(.top, -6)
-
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.white.opacity(0.8))
-
-                TextField("", text: $search, prompt: Text("Search Items").foregroundColor(.white.opacity(0.7)))
-                    .foregroundColor(.white)
-                    .accentColor(.white)
-            }
-            .padding(14)
-            .background(Color.black.opacity(0.45))
-            .clipShape(Capsule())
-            .padding(.horizontal, 24)
-
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 14) {
-                    ForEach(filtered) { item in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(item.name)
-                                    .foregroundColor(.white)
-                                    .font(.headline)
-
-                                Text(item.amount)
-                                    .foregroundColor(item.low ? .yellow : .white.opacity(0.9))
-                                    .font(.subheadline.weight(.semibold))
-                            }
-
-                            Spacer()
-
-                            Button(action: {
-                                deleteItem(item)
-                            }) {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
-                                    .padding(8)
-                                    .background(Color.white.opacity(0.12))
-                                    .clipShape(Circle())
-                            }
-                        }
-                        .padding()
-                        .background(Color.black.opacity(0.55))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 10)
-            }
-
-            Button(action: {
-                showAddItemSheet = true
-            }) {
-                Text("+ Add Item")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color(red: 0.45, green: 0.28, blue: 0.14))
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, 60)
-            .padding(.bottom, 20)
-        }
-        .background(
+        ZStack(alignment: .topLeading) {
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
-                .blur(radius: 2)
-                .overlay(Color.black.opacity(0.15))
                 .ignoresSafeArea()
-        )
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .sheet(isPresented: $showAddItemSheet) {
-            AddInventoryItemView { name, amount in
-                let lowStock = amount.lowercased().contains("left") || amount.lowercased().contains("low")
-                let newItem = Item(name: name, amount: amount, low: lowStock)
-                items.append(newItem)
-            }
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
-        }
-    }
+                .overlay(Color.black.opacity(0.45))
 
-    func deleteItem(_ item: Item) {
-        items.removeAll { $0.id == item.id }
-    }
-}
+            VStack {
+                Spacer()
 
-struct AddInventoryItemView: View {
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var itemName = ""
-    @State private var itemAmount = ""
-
-    var onSave: (String, String) -> Void
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color(red: 0.10, green: 0.10, blue: 0.12)
-                    .ignoresSafeArea()
-
-                VStack(spacing: 20) {
-                    Text("Add New Item")
-                        .font(.system(size: 28, weight: .bold))
+                VStack(spacing: 16) {
+                    Text("Inventory")
+                        .font(.title2.bold())
                         .foregroundColor(.white)
 
-                    TextField("", text: $itemName, prompt: Text("Item name").foregroundColor(.white.opacity(0.6)))
-                        .padding()
-                        .background(Color.white.opacity(0.08))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                        )
+                    TextField(
+                        "",
+                        text: $search,
+                        prompt: Text("Search")
+                            .foregroundColor(.white.opacity(0.6))
+                    )
+                    .padding(.horizontal, 12)
+                    .frame(height: 42)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(12)
+                    .foregroundColor(.white)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
 
-                    TextField("", text: $itemAmount, prompt: Text("Amount").foregroundColor(.white.opacity(0.6)))
-                        .padding()
-                        .background(Color.white.opacity(0.08))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                        )
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            if filtered.isEmpty {
+                                Text("No inventory items found")
+                                    .foregroundColor(.white.opacity(0.85))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 24)
+                                    .background(Color.white.opacity(0.12))
+                                    .cornerRadius(12)
+                            } else {
+                                ForEach(filtered) { item in
+                                    inventoryRow(item)
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 260)
 
-                    Button(action: saveItem) {
-                        Text("Save Item")
-                            .foregroundColor(.white)
-                            .font(.headline)
+                    Button {
+                        showAdd.toggle()
+                    } label: {
+                        Text("+ Add Item")
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color(red: 0.45, green: 0.28, blue: 0.14))
-                            .clipShape(Capsule())
+                            .frame(height: 45)
+                            .background(Color.yellow)
+                            .foregroundColor(.black)
+                            .cornerRadius(20)
                     }
-
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white.opacity(0.8))
                 }
-                .padding(24)
+                .padding()
+                .frame(maxWidth: 340)
+                .frame(maxWidth: .infinity)
+                .background(.ultraThinMaterial)
+                .cornerRadius(20)
+                .padding(.horizontal)
+
+                Spacer()
             }
-            .navigationBarTitleDisplayMode(.inline)
+
+            Button {
+                isPresented = false
+            } label: {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.white)
+                    .frame(width: 40, height: 40)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Circle())
+            }
+            .padding(.top, 55)
+            .padding(.leading, 16)
+            .zIndex(999)
+        }
+        .sheet(isPresented: $showAdd) {
+            VStack(spacing: 20) {
+                Text("Add Item")
+                    .font(.title2.bold())
+
+                TextField("Item Name", text: $newName)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 250)
+
+                TextField("Quantity", text: $newQuantity)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 250)
+
+                Button("Save") {
+                    let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let quantity = Int(newQuantity) ?? 0
+
+                    guard !trimmedName.isEmpty else { return }
+
+                    let item = InventoryItemModel(
+                        name: trimmedName,
+                        quantity: max(0, quantity),
+                        unit: nil,
+                        lowStockThreshold: 5
+                    )
+
+                    store.addInventory(item)
+
+                    newName = ""
+                    newQuantity = ""
+                    showAdd = false
+                }
+
+                Button("Cancel") {
+                    showAdd = false
+                }
+            }
+            .padding()
         }
     }
 
-    func saveItem() {
-        let cleanName = itemName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let cleanAmount = itemAmount.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func inventoryRow(_ item: InventoryItemModel) -> some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.name)
+                    .foregroundColor(.white)
+                    .font(.headline)
 
-        guard !cleanName.isEmpty, !cleanAmount.isEmpty else { return }
+                Text("Quantity: \(item.quantity)")
+                    .foregroundColor(.white.opacity(0.85))
+                    .font(.subheadline)
+            }
 
-        onSave(cleanName, cleanAmount)
-        dismiss()
+            Spacer()
+
+            HStack(spacing: 8) {
+                Button {
+                    updateQuantity(for: item, delta: -1)
+                } label: {
+                    Image(systemName: "minus")
+                        .foregroundColor(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.16))
+                        .clipShape(Circle())
+                }
+
+                Text("\(item.quantity)")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .frame(minWidth: 24)
+
+                Button {
+                    updateQuantity(for: item, delta: 1)
+                } label: {
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.16))
+                        .clipShape(Circle())
+                }
+
+                Button {
+                    store.inventory.removeAll { $0.id == item.id }
+                } label: {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.10))
+                        .clipShape(Circle())
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color.white.opacity(0.15))
+        .cornerRadius(12)
+    }
+
+    private func updateQuantity(for item: InventoryItemModel, delta: Int) {
+        guard let index = store.inventory.firstIndex(where: { $0.id == item.id }) else { return }
+        let newValue = max(0, store.inventory[index].quantity + delta)
+        store.inventory[index].quantity = newValue
     }
 }

@@ -8,100 +8,139 @@
 import SwiftUI
 
 struct PostAnnouncementView: View {
+    @EnvironmentObject var store: StorageManager
+    @Binding var isPresented: Bool
 
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var announcementStore: AnnouncementStore
-    
     @State private var title = ""
     @State private var message = ""
+    @State private var errorMessage: String?
+
+    var isFormValid: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
-        VStack(spacing: 20) {
-
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.top, 12)
-
-            Text("POST AN ANNOUNCEMENT")
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(.white)
-                .padding(.top, -8)
-
-            VStack(spacing: 16) {
-
-                TextField("Title", text: $title)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .foregroundColor(.black)
-
-                TextField("Message", text: $message)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .foregroundColor(.black)
-            }
-            .padding(.horizontal, 24)
-
-            Button(action: publishAnnouncement) {
-                Text("Publish")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.brown.opacity(0.7))
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, 60)
-
-            Button(action: { dismiss() }) {
-                Text("Cancel")
-                    .foregroundColor(.white.opacity(0.8))
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.brown.opacity(0.45))
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, 60)
-
-            Spacer()
-        }
-        .background(
+        ZStack(alignment: .topLeading) {
+            
             Image("pointseven")
                 .resizable()
                 .scaledToFill()
-                .blur(radius: 2)
-                .overlay(Color.black.opacity(0.15))
                 .ignoresSafeArea()
-        )
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
+                .overlay(Color.black.opacity(0.45))
+
+            
+            VStack {
+                Spacer()
+
+                VStack(spacing: 16) {
+                    Text("Post Announcement")
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
+
+                    CustomInputField(
+                        text: $title,
+                        placeholder: "Title"
+                    )
+
+                    ZStack(alignment: .topLeading) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.18))
+                            .frame(height: 120)
+
+                        if message.isEmpty {
+                            Text("Message")
+                                .foregroundColor(.white.opacity(0.65))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 14)
+                        }
+
+                        TextEditor(text: $message)
+                            .scrollContentBackground(.hidden)
+                            .background(Color.clear)
+                            .foregroundColor(.white)
+                            .accentColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 8)
+                            .frame(height: 120)
+                    }
+
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                    }
+
+                    Button {
+                        guard isFormValid else {
+                            errorMessage = "Please fill all fields"
+                            return
+                        }
+
+                        let userId = UserDefaults.standard.string(forKey: "currentUserId")
+                        let uuid = UUID(uuidString: userId ?? "")
+
+                        let announcement = AnnouncementModel(
+                            title: title,
+                            body: message,
+                            postedBy: uuid
+                        )
+
+                        store.addAnnouncement(announcement)
+                        isPresented = false
+                    } label: {
+                        Text("Publish")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 45)
+                            .background(isFormValid ? Color.yellow : Color.gray)
+                            .foregroundColor(.black)
+                            .cornerRadius(12)
+                    }
+                    .disabled(!isFormValid)
+                }
+                .padding()
+                .frame(maxWidth: 340)
+                .frame(maxWidth: .infinity)
+                .background(.ultraThinMaterial)
+                .cornerRadius(20)
+                .padding(.horizontal)
+
+                Spacer()
+            }
+
+            
+            Button {
+                isPresented = false
+            } label: {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(Color.black.opacity(0.7))
+                    .clipShape(Circle())
+            }
+            .padding(.top, 55)
+            .padding(.leading, 16)
+        }
     }
+}
 
 
-    func publishAnnouncement() {
+struct CustomInputField: View {
+    @Binding var text: String
+    let placeholder: String
 
-        let newAnnouncement = Announcement(
-            title: title,
-            message: message
+    var body: some View {
+        TextField(
+            "",
+            text: $text,
+            prompt: Text(placeholder)
+                .foregroundColor(.white.opacity(0.7))
         )
-
-        announcementStore.announcements.append(newAnnouncement)
-
-        title = ""
-        message = ""
-
-        dismiss()
+        .padding(.horizontal, 12)
+        .frame(height: 42)
+        .background(Color.white.opacity(0.2))
+        .cornerRadius(12)
+        .foregroundColor(.white)
+        .accentColor(.white)
     }
 }

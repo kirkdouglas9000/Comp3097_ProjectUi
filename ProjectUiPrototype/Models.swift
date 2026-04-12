@@ -11,7 +11,7 @@ struct User: Codable, Identifiable, Equatable, Hashable {
   var id = UUID()
   var name: String
   var email: String
-  var username: String   
+  var username: String
   var role: String
   var phone: String?
   var createdAt = Date()
