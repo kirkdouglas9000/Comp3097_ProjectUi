@@ -2,8 +2,8 @@
 //  InventoryView.swift
 //  ProjectUiPrototype
 //
-//  Created by Andrei Gania on 2026-02-08.
-//  101478350
+//  Created by Denrick Viera on 2026-02-08.
+//  101426295
 
 import SwiftUI
 

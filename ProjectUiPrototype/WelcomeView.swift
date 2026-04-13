@@ -2,8 +2,8 @@
 //  WelcomeView.swift
 //  ProjectUiPrototype
 //
-//  Created by Kirk on 2026-02-07.
-//  101401017
+//  Created by Denrick Viera on 2026-02-07.
+//  101426295
 
 import SwiftUI
 
